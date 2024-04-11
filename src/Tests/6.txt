@@ -1,0 +1,10 @@
+let rec palindromesInRange (start,end)=
+	start gr end -> nil | isPalindrome end -> (palindromesInRange(start,end-1) aug end) | palindromesInRange(start,end-1)
+	where isPalindrome x =
+		getReverse (x,0) eq x
+		where rec getReverse (num,revNum)= 
+			num/10 eq 0 -> revNum*10+getModulo(num,10) | getReverse (num/10,revNum*10+getModulo(num,10))
+			where getModulo (x,y) = 
+				x - ((x/y)*y)
+
+in Print(palindromesInRange (100,200))

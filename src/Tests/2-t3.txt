@@ -1,0 +1,6 @@
+let maxOfThree T = 
+	maxOfTwo (maxOfTwo (T 1, T 2), T 3)
+	where maxOfTwo T =
+		T 1 >= T 2 -> T 1 | T 2
+	
+in Print(maxOfThree (100,100,100))

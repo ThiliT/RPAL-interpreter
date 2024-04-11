@@ -1,0 +1,6 @@
+let oddOrEven x = 
+	getModulo(x,2) eq 0 -> 'Even'|'Odd'
+	where getModulo (x,y) = 
+			x - ((x/y)*y)
+		
+in Print(oddOrEven 0)

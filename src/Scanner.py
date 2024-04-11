@@ -1,4 +1,4 @@
-class MyCustomError(Exception):
+class CustomError(Exception):
     pass
 
 
@@ -12,14 +12,18 @@ number_of_Tokens = 0
 
 punction = [")", "(", ";", ","]
 
-operator_symbol = [ "+","-","*","<",">","&",".","@","/",":","=","~","|","$","!","#","%","^","_","[","]","{","}",'"',"`","?",]
+operator_symbol = [ "+","-","*","<",">","&",".",
+                    "@","/",":","=","~","|","$",
+                    "!","#","%","^","_","[","]",
+                    "{","}",'"',"`","?",]
 
 comment_elements = [ '"', "\\", " ", "\t"]
 
 
 Input_Tokens = []
 
-with open("E:\\VSCODE\RPAL\src\Scanner\Input.txt", "r") as f:
+with open("E:\VSCODE\RPAL\src\Tests\\1-t1.txt", "r") as f:
+
     inputString = f.read()
 
     i = 0
@@ -91,7 +95,7 @@ with open("E:\\VSCODE\RPAL\src\Scanner\Input.txt", "r") as f:
                 Input_Tokens.append(Token(token, "<STRING>"))
 
             else:
-                raise MyCustomError("need '' ")
+                raise CustomError("Don't end with '' ")
 
         elif (
             inputString[i:i+2] == "//" and (i + 1 < len(inputString)) ):
@@ -111,7 +115,7 @@ with open("E:\\VSCODE\RPAL\src\Scanner\Input.txt", "r") as f:
                 Input_Tokens.append(Token(token, "<DELETE>"))
 
             else:
-                raise MyCustomError("need to end with newline")
+                raise CustomError("Don't end with newline")
 
         elif inputString[i] in operator_symbol:
             temp = i
@@ -130,7 +134,11 @@ for token in Input_Tokens:
     if token.type != "<DELETE>":
         Tokens.append(token)
 
+file = open("E:\VSCODE\RPAL\src\OutputScanner.txt", "w")
 
 for token in Tokens:
     print(token.value, token.type)
+    file.write( token.value + " : " + token.type + "\n" )
+file.close()
+
 
