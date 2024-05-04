@@ -22,7 +22,7 @@ comment_elements = [ '"', "\\", " ", "\t"]
 
 Input_Tokens = []
 
-with open("E:\VSCODE\RPAL\src\Tests\\1-t1.txt", "r") as f:
+with open("E:\VSCODE\RPAL\src\Tests\\2-t1.txt", "r") as f:
 
     inputString = f.read()
 
@@ -134,11 +134,10 @@ for token in Input_Tokens:
     if token.type != "<DELETE>":
         Tokens.append(token)
 
+
 file = open("E:\VSCODE\RPAL\src\OutputScanner.txt", "w")
 
-for token in Tokens:
-    print(token.value, token.type)
+'''for token in Tokens:
+    #print(token.value, token.type)
     file.write( token.value + " : " + token.type + "\n" )
-file.close()
-
-
+file.close()'''
