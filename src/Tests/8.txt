@@ -1,0 +1,4 @@
+let rec getNumberSum term =
+	term eq 0 -> 0| (getNumberSum(term-1)+term)
+	
+in Print(getNumberSum 0)

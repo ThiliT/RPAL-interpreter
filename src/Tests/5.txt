@@ -1,0 +1,8 @@
+let isPalindrome x =
+	getReverse (x,0) eq x -> 'Palindrome' | 'Not a palindrome'
+	where rec getReverse (num,revNum)= 
+		num/10 eq 0 -> revNum*10+getModulo(num,10) | getReverse (num/10,revNum*10+getModulo(num,10))
+		where getModulo (x,y) = 
+			x - ((x/y)*y)
+
+in Print(isPalindrome 12345)
