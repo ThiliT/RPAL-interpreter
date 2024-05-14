@@ -1,4 +1,0 @@
-let rec getFactorial x =
-	x eq 0 -> 1 | x*getFactorial(x-1)
-	
-in Print(getFactorial(0))
