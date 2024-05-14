@@ -1,0 +1,8 @@
+let start = 0 in
+let end = 100 in
+let rec fibo(a,b) = 
+	b > end -> (nil aug a) | a >= start -> (fibo(b,a+b) aug a) | fibo(b,a+b)
+in
+let rec reverseTuple (T,index) =
+		index eq (Order T) -> nil | reverseTuple(T,index+1) aug (T index)
+in Print(reverseTuple(fibo(0,1),1))
