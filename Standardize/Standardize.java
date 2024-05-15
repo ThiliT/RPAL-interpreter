@@ -7,29 +7,29 @@ import CSEmachine.Delta;
 import parser.ASTNode;
 import parser.ASTNodeType;
 
-// AST uses first child, next sibling representation
+//// AST uses first child, next sibling representation
 
 public class Standardize {
-  private ASTNode root;
+  private ASTNode rootNode;
   private Delta currentDelta;
   private Delta rootDelta;
   private int deltaIndex;
-  private boolean standardized;
+  private boolean isStandardized;
   private ArrayDeque<PendingDelta> pendingDeltaQueue;
 
   public Standardize(ASTNode node) {
-    this.root = node;
+    this.rootNode = node;
   }
 
-  // Standardizing (bottom-up)
+  // Method to standardize the AST (bottom-up)
 
   public void standardize() {
-    standardize(root);
-    standardized = true;
+    standardize(rootNode);
+    isStandardized = true;
   }
 
   private void standardize(ASTNode node) {
-    // Standardizing child nodes
+    // Standardizing child nodes recursively
     if (node.getChild() != null) {
       ASTNode childNode = node.getChild();
       while (childNode != null) {
@@ -38,9 +38,10 @@ public class Standardize {
       }
     }
 
-    // Standardizing the current node
+    // Standardizing the current node based on its type
     switch (node.getType()) {
-      // standardizing let
+
+      // standardizing LET nodes
       case LET:
         ASTNode equalNode = node.getChild();
         if (equalNode.getType() != ASTNodeType.EQUAL)
@@ -52,7 +53,7 @@ public class Standardize {
         node.setType(ASTNodeType.GAMMA);
         break;
 
-      // standardizing where
+      // standardizing WHERE nodes
       case WHERE:
         equalNode = node.getChild().getSibling();
         node.getChild().setSibling(null);
@@ -62,14 +63,14 @@ public class Standardize {
         standardize(node);
         break;
 
-      // standardizing fcnform
+      // standardizing FCNFORM nodes
       case FCNFORM:
         ASTNode childSibling = node.getChild().getSibling();
         node.getChild().setSibling(constructLambdaChain(childSibling));
         node.setType(ASTNodeType.EQUAL);
         break;
 
-      // standardizing at
+      // standardizing AT nodes
       case AT:
         ASTNode e1 = node.getChild();
         ASTNode n = e1.getSibling();
@@ -84,7 +85,7 @@ public class Standardize {
         node.setType(ASTNodeType.GAMMA);
         break;
 
-      // standardizing within
+      // standardizing WITHIN nodes
       case WITHIN:
         if (node.getChild().getType() != ASTNodeType.EQUAL
             || node.getChild().getSibling().getType() != ASTNodeType.EQUAL)
@@ -106,7 +107,7 @@ public class Standardize {
         node.setType(ASTNodeType.EQUAL);
         break;
 
-      // standardizing simultaneous definitions
+      // standardizing simultaneous definitions nodes
       case SIMULTDEF:
         ASTNode commaNode = new ASTNode();
         commaNode.setType(ASTNodeType.COMMA);
@@ -122,7 +123,7 @@ public class Standardize {
         node.setType(ASTNodeType.EQUAL);
         break;
 
-      // standardizing rec
+      // standardizing REC nodes
       case REC:
         childNode = node.getChild();
         if (childNode.getType() != ASTNodeType.EQUAL)
@@ -146,7 +147,7 @@ public class Standardize {
         node.setType(ASTNodeType.EQUAL);
         break;
 
-      // standardizing lambda
+      // standardizing LAMBDA nodes
       case LAMBDA:
         childSibling = node.getChild().getSibling();
         node.getChild().setSibling(constructLambdaChain(childSibling));
@@ -158,7 +159,7 @@ public class Standardize {
     }
   }
 
-  // populating comma and tau nodes
+  // Populate comma and tau nodes with ASTNode children
   private void processCommaAndTau(ASTNode equalNode, ASTNode commaNode, ASTNode tauNode) {
     if (equalNode.getType() != ASTNodeType.EQUAL)
       throw new StandardizeException("SIMULTDEF: one of the children is not EQUAL");
@@ -168,6 +169,7 @@ public class Standardize {
     setChild(tauNode, e);
   }
 
+  // Set child node for a parent node
   private void setChild(ASTNode parentNode, ASTNode childNode) {
     if (parentNode.getChild() == null)
       parentNode.setChild(childNode);
@@ -180,6 +182,7 @@ public class Standardize {
     childNode.setSibling(null);
   }
 
+  // Construct a chain of lambda nodes
   private ASTNode constructLambdaChain(ASTNode node) {
     if (node.getSibling() == null)
       return node;
@@ -191,16 +194,16 @@ public class Standardize {
     return lambdaNode;
   }
 
-  // processinf for delta
-  
+  // Process for creating delta nodes
   public Delta createDeltas() {
     pendingDeltaQueue = new ArrayDeque<PendingDelta>();
     deltaIndex = 0;
-    currentDelta = createDelta(root);
+    currentDelta = createDelta(rootNode);
     processPendingDeltaStack();
     return rootDelta;
   }
 
+  // Create a delta node
   private Delta createDelta(ASTNode startBodyNode) {
     PendingDelta pendingDelta = new PendingDelta();
     pendingDelta.startNode = startBodyNode;
@@ -212,12 +215,13 @@ public class Standardize {
     d.setIndex(deltaIndex++);
     currentDelta = d;
 
-    if (startBodyNode == root)
+    if (startBodyNode == rootNode)
       rootDelta = currentDelta;
 
     return d;
   }
 
+  // Process pending delta stack by building delta bodies
   private void processPendingDeltaStack() {
     while (!pendingDeltaQueue.isEmpty()) {
       PendingDelta pendingDelta = pendingDeltaQueue.pop();
@@ -225,6 +229,7 @@ public class Standardize {
     }
   }
 
+  // Recursively build the body of a delta node
   private void buildDeltaBody(ASTNode node, Stack<ASTNode> body) {
     if (node.getType() == ASTNodeType.LAMBDA) {
       Delta d = createDelta(node.getChild().getSibling());
@@ -264,21 +269,24 @@ public class Standardize {
     }
   }
 
+  // PendingDelta class to hold information about pending delta nodes
   private class PendingDelta {
     Stack<ASTNode> body;
     ASTNode startNode;
   }
 
+  // Check if the AST has been standardized
   public boolean isStandardized() {
-    return standardized;
+    return isStandardized;
   }
 
-  // Printing
-
+  // Printing methods
+  // Print the entire AST in pre-order traversal
   public void print() {
-    preOrderPrint(root, "");
+    preOrderPrint(rootNode, "");
   }
 
+  // Recursively print the AST nodes in pre-order traversal
   private void preOrderPrint(ASTNode node, String printPrefix) {
     if (node == null)
       return;
@@ -288,6 +296,7 @@ public class Standardize {
     preOrderPrint(node.getSibling(), printPrefix);
   }
 
+  // Print details of the AST node
   private void printASTNodeDetails(ASTNode node, String printPrefix) {
     if (node.getType() == ASTNodeType.IDENTIFIER ||
         node.getType() == ASTNodeType.INTEGER) {
