@@ -4,12 +4,13 @@ import java.util.Stack;
 import parser.ASTNode;
 import parser.ASTNodeType;
 
-// For evaluating conditionals
+// Represents a Beta node for evaluating conditionals
 public class Beta extends ASTNode {
 
   private Stack<ASTNode> thenPart;
   private Stack<ASTNode> elsePart;
 
+  // Constructor
   public Beta() {
 
     setType(ASTNodeType.BETA);
@@ -18,6 +19,7 @@ public class Beta extends ASTNode {
 
   }
 
+  // Getters and setters 
   public Stack<ASTNode> getThenPart() {
     return thenPart;
   }
@@ -34,6 +36,7 @@ public class Beta extends ASTNode {
     this.elsePart = elsePart;
   }
 
+  // Accept method for visitor pattern
   public Beta accept(Copier copier) {
     return copier.copy(this);
   }

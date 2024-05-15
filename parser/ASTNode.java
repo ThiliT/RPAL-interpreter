@@ -1,6 +1,8 @@
 package parser;
 import CSEmachine.Copier;
 
+//Represents a node in an abstract syntax tree (AST)
+
 public class ASTNode {
   private ASTNodeType type;
   private String value;

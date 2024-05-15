@@ -1,10 +1,9 @@
 package scanner;
 import java.util.regex.Pattern;
 
-// Used by the scanner for tokenizing
 public class Regex {
 
-  // Regex strings
+  //Regular expressions Strings
   private static final String letterRegex = "a-zA-Z";
 
   private static final String digitRegex = "\\d";
@@ -19,7 +18,7 @@ public class Regex {
 
   public static final String opSymbolRegex = "[" + escapeMetaChars(opSymbolRegexString, opSymbolToEscapeString) + "]";
 
-  // patterns
+  //Patterns
   public static final Pattern LetterPattern = Pattern.compile("[" + letterRegex + "]");
 
   public static final Pattern DigitPattern = Pattern.compile(digitRegex);
@@ -39,7 +38,7 @@ public class Regex {
       + letterRegex + digitRegex + escapeMetaChars(opSymbolRegexString, opSymbolToEscapeString) + "]");
 
 
-
+  // Method to escape meta characters in a string
   private static String escapeMetaChars(String inputString, String charsToEscape) {
     return inputString.replaceAll(charsToEscape, "\\\\\\\\$1");
   }

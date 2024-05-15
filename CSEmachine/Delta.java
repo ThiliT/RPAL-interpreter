@@ -7,6 +7,7 @@ import java.util.Stack;
 import parser.ASTNode;
 import parser.ASTNodeType;
 
+// Delta class representing the DELTA nodes in the AST
 public class Delta extends ASTNode {
 
   private List<String> boundVars;
@@ -14,12 +15,14 @@ public class Delta extends ASTNode {
   private Stack<ASTNode> body;
   private int index;
 
+   // Constructor
   public Delta() {
 
     setType(ASTNodeType.DELTA);
     boundVars = new ArrayList<String>();
   }
 
+  // Method to create a deep copy of the Delta node
   public Delta accept(Copier copier) {
     return copier.copy(this);
   }
@@ -29,6 +32,8 @@ public class Delta extends ASTNode {
     return "[lambda closure: " + boundVars.get(0) + ": " + index + "]";
   }
 
+  // Getter and setter methods
+  
   public List<String> getBoundVars() {
     return boundVars;
   }

@@ -7,7 +7,7 @@ import CSEmachine.Delta;
 import parser.ASTNode;
 import parser.ASTNodeType;
 
-//// AST uses first child, next sibling representation
+// AST uses first child, next sibling representation
 
 public class Standardize {
   private ASTNode rootNode;

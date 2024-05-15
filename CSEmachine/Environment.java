@@ -5,6 +5,8 @@ import java.util.Map;
 
 import parser.ASTNode;
 
+// Environment class representing the lexical environment for variable bindings
+
 public class Environment {
 
   private Environment parent;
@@ -22,7 +24,7 @@ public class Environment {
   }
 
 
-  // Finding the binding of the given key in the environment's mappings
+  // Method to lookup the binding of a variable in the environment's mappings
   public ASTNode lookup(String key) {
     ASTNode returnVal = null;
     Map<String, ASTNode> map = nameValues;
@@ -37,7 +39,7 @@ public class Environment {
     else
       return null;
   }
-
+// Method to add a new mapping of a variable to a value in the environment
   public void addMapping(String key, ASTNode value) {
     nameValues.put(key, value);
   }

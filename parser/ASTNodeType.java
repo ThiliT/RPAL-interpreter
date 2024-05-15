@@ -1,6 +1,6 @@
 package parser;
 
-// Contains the AST Node Types
+//AST Node Types
 public enum ASTNodeType {
   IDENTIFIER("<ID:%s>"),
   STRING("<STR:'%s'>"),
@@ -47,6 +47,7 @@ public enum ASTNodeType {
 
   private String printName;
 
+  // Constructor for ASTNodeType
   private ASTNodeType(String name) {
     printName = name;
   }

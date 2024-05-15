@@ -1,6 +1,6 @@
 package scanner;
 
-// Token types for the scanner
+//Enum representing different types of tokens produced by the scanner
 public enum TokenType {
   IDENTIFIER,
   INTEGER,
@@ -11,5 +11,5 @@ public enum TokenType {
   R_PAREN,
   SEMICOLON,
   COMMA,
-  RESERVED; // Rpal keywords
+  RESERVED;
 }

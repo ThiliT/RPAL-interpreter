@@ -7,22 +7,25 @@ import scanner.Scanner;
 import scanner.Token;
 import scanner.TokenType;
 
-// Uses recursive descent parsing
+//Class for building AST using recursive descent parsing
 public class Parser {
   private Scanner s;
   private Token currentToken;
   Stack<ASTNode> stack;
 
+  //Constructor
   public Parser(Scanner s) {
     this.s = s;
     stack = new Stack<ASTNode>();
   }
 
+  //Build AST
   public Standardize buildAST() {
     startParse();
     return new Standardize(stack.pop());
   }
 
+  //Start parsing
   public void startParse() {
     read();
     E();
@@ -30,12 +33,16 @@ public class Parser {
       throw new ParseException("Expected EOF.");
   }
 
+  //Read the next token
   private void read() {
     do {
       currentToken = s.readNextToken();
     }
 
+    //Skip DELETE tokens
     while (isCurrentTokenType(TokenType.DELETE));
+
+    //Process non-DELETE tokens
     if (null != currentToken) {
       if (currentToken.getType() == TokenType.IDENTIFIER) {
         CreateTerminal(ASTNodeType.IDENTIFIER, currentToken.getValue());
@@ -51,6 +58,7 @@ public class Parser {
     }
   }
 
+  // Check if the current token matches the specified type and value
   private boolean isCurrentToken(TokenType type, String value) {
     if (currentToken == null)
       return false;
@@ -61,6 +69,7 @@ public class Parser {
     return true;
   }
 
+  // Check if the current token has the specified type
   private boolean isCurrentTokenType(TokenType type) {
     if (currentToken == null)
       return false;
@@ -71,11 +80,12 @@ public class Parser {
     return false;
   }
 
-  // Building an N-ary ast node
+  // Building an N-ary AST node
   private void build_tree(ASTNodeType type, int ariness) {
     ASTNode node = new ASTNode();
     node.setType(type);
 
+    // Pop children from the stack
     while (ariness > 0) {
 
       ASTNode child = stack.pop();
@@ -87,7 +97,7 @@ public class Parser {
     stack.push(node);
 
   }
-
+  // Create a terminal node and push it onto the stack
   private void CreateTerminal(ASTNodeType type, String value) {
     ASTNode node = new ASTNode();
 
@@ -110,7 +120,7 @@ public class Parser {
       read();
       E();
       build_tree(ASTNodeType.LET, 2);
-
+      //E->’let’ D ’in’ E
     }
 
     else if (isCurrentToken(TokenType.RESERVED, "fn")) {
@@ -134,21 +144,23 @@ public class Parser {
       E();
 
       build_tree(ASTNodeType.LAMBDA, treesToPop + 1);
+      //E -> ’fn’ Vb+ ’.’ E
     }
 
     else
       EW();
+      //E -> EW
   }
-
 
   private void EW() {
     T();
-
+    //Ew->T
     if (isCurrentToken(TokenType.RESERVED, "where")) {
 
       read();
       DR();
       build_tree(ASTNodeType.WHERE, 2);
+      //Ew ->T ’where’ Dr
     }
 
   }
@@ -156,7 +168,7 @@ public class Parser {
     // Tuple expressions
     private void T() {
       TA();
-
+      //T -> TA
       int treesToPop = 0;
       while (isCurrentToken(TokenType.OPERATOR, ",")) {
         read();
@@ -166,108 +178,120 @@ public class Parser {
 
       if (treesToPop > 0)
         build_tree(ASTNodeType.TAU, treesToPop + 1);
-
+      //T -> TA ( ',' TA)+
       }
 
     private void TA() {
       TC();
-
+      //TA -> TC
       while (isCurrentToken(TokenType.RESERVED, "aug")) {
         read();
         TC();
         build_tree(ASTNodeType.AUG, 2);
+        //TA -> TA 'aug' TC
       }
 
     }
-  
+
     private void TC() {
       B();
-
+      //TC -> B
       if (isCurrentToken(TokenType.OPERATOR, "->")) {
         read();
         TC();
-        
+
         if (!isCurrentToken(TokenType.OPERATOR, "|"))
           throw new ParseException("TC: '|' expected");
-        
+
         read();
         TC();
         build_tree(ASTNodeType.CONDITIONAL, 3);
+        //TC -> B '->' TC '|' TC
       }
     }
 
   // Boolean Expressions
   private void B() {
     BT();
-
+    //B -> BT
     while (isCurrentToken(TokenType.RESERVED, "or")) {
       read();
       BT();
       build_tree(ASTNodeType.OR, 2);
+      //B -> B 'or' BT
     }
 
   }
 
   private void BT() {
     BS();
-
+    //BT -> BS
     while (isCurrentToken(TokenType.OPERATOR, "&")) {
       read();
-      BS(); 
+      BS();
       build_tree(ASTNodeType.AND, 2);
+      //BT -> BT '&' BS
     }
 
   }
 
   private void BS() {
 
-    if (isCurrentToken(TokenType.RESERVED, "not")) { 
+    if (isCurrentToken(TokenType.RESERVED, "not")) {
       read();
       BP();
       build_tree(ASTNodeType.NOT, 1);
+      //BS -> 'not' BP
     }
-    
+
     else
       BP();
+      //BS -> BP
   }
 
   private void BP() {
     A();
-
+    //BP -> A
     if (isCurrentToken(TokenType.RESERVED, "gr") || isCurrentToken(TokenType.OPERATOR, ">")) { 
       read();
       A();
       build_tree(ASTNodeType.GR, 2);
+      //BP -> A ( 'gr' | '>') A
     }
-    
+
     else if (isCurrentToken(TokenType.RESERVED, "ge") || isCurrentToken(TokenType.OPERATOR, ">=")) { 
       read();
       A();
       build_tree(ASTNodeType.GE, 2);
+      //BP -> A ( 'ge' | '>=') A
     }
-    
+
     else if (isCurrentToken(TokenType.RESERVED, "ls") || isCurrentToken(TokenType.OPERATOR, "<")) { 
       read();
-      A(); 
+      A();
       build_tree(ASTNodeType.LS, 2);
+      //BP -> A ( 'ls' | '<') A
     }
     
     else if (isCurrentToken(TokenType.RESERVED, "le") || isCurrentToken(TokenType.OPERATOR, "<=")) { 
       read();
       A(); 
       build_tree(ASTNodeType.LE, 2);
+      //BP -> A ( 'le' | '<=') A
     }
     
     else if (isCurrentToken(TokenType.RESERVED, "eq")) { 
       read();
       A();
       build_tree(ASTNodeType.EQ, 2);
+      //BP -> A  'eq' A
     }
 
     else if (isCurrentToken(TokenType.RESERVED, "ne")) { 
       read();
       A();
       build_tree(ASTNodeType.NE, 2);
+      //BP -> A  'ne' A
     }
 
   }
@@ -277,17 +301,20 @@ public class Parser {
 
     if (isCurrentToken(TokenType.OPERATOR, "+")) { 
       read();
-      AT(); 
+      AT();
+      //A -> '+' AT
     }
     
     else if (isCurrentToken(TokenType.OPERATOR, "-")) { 
       read();
-      AT(); 
+      AT();
       build_tree(ASTNodeType.NEG, 1);
+      //A -> '-' AT
     }
-    
+
     else
-      AT(); 
+      AT();
+      //A -> AT
 
     boolean plus = true;
     while (isCurrentToken(TokenType.OPERATOR, "+") || isCurrentToken(TokenType.OPERATOR, "-")) {
@@ -303,16 +330,18 @@ public class Parser {
 
       if (plus) 
         build_tree(ASTNodeType.PLUS, 2);
+        //A -> A '+' AT
 
       else 
         build_tree(ASTNodeType.MINUS, 2);
+        //A -> A '+' AT
     }
 
   }
 
   private void AT() {
     AF();
-
+    //AT -> AF
     boolean mult = true;
     while (isCurrentToken(TokenType.OPERATOR, "*") || isCurrentToken(TokenType.OPERATOR, "/")) {
 
@@ -327,36 +356,40 @@ public class Parser {
 
       if (mult)
         build_tree(ASTNodeType.MULT, 2);
+        //AT -> AT '*' AF
 
       else
       build_tree(ASTNodeType.DIV, 2);
+      //AT -> AT '/' AF
     }
 
   }
 
   private void AF() {
     AP();
-
+    //AF -> AP
     if (isCurrentToken(TokenType.OPERATOR, "**")) {
       read();
       AF();
       build_tree(ASTNodeType.EXP, 2);
+      //AF -> AP '**' AF
     }
 
   }
 
   private void AP() {
     R();
-
+    //AP -> R
     while (isCurrentToken(TokenType.OPERATOR, "@")) {
       read();
-    
+
       if (!isCurrentTokenType(TokenType.IDENTIFIER))
         throw new ParseException("AP: expected Identifier");
 
       read();
       R();
       build_tree(ASTNodeType.AT, 3);
+      //AP -> AP '@' '<IDENTIFIER>' R
     }
 
   }
@@ -364,7 +397,8 @@ public class Parser {
 
   // Rators and Rands
   private void R() {
-    RN(); 
+    RN();
+    //R-> RN
     read();
 
     while (isCurrentTokenType(TokenType.INTEGER) ||
@@ -378,6 +412,7 @@ public class Parser {
 
       RN();
       build_tree(ASTNodeType.GAMMA, 2);
+      //R -> R RN
       read();
     }
 
@@ -387,31 +422,36 @@ public class Parser {
     if (isCurrentTokenType(TokenType.IDENTIFIER) ||
         isCurrentTokenType(TokenType.INTEGER) ||
         isCurrentTokenType(TokenType.STRING)) {
-
+          //Rn ->’<IDENTIFIER>’ | <INTEGER>’ | ’<STRING>’
     }
-    
+
     else if (isCurrentToken(TokenType.RESERVED, "true")) {
       CreateTerminal(ASTNodeType.TRUE, "true");
+      //RN -> 'true'
     }
-    
-    else if (isCurrentToken(TokenType.RESERVED, "false")) { 
+
+    else if (isCurrentToken(TokenType.RESERVED, "false")) {
       CreateTerminal(ASTNodeType.FALSE, "false");
+      //RN -> 'false'
     }
-    
-    else if (isCurrentToken(TokenType.RESERVED, "nil")) { 
+
+    else if (isCurrentToken(TokenType.RESERVED, "nil")) {
       CreateTerminal(ASTNodeType.NIL, "nil");
+      //RN -> 'nil'
     }
-    
+
     else if (isCurrentTokenType(TokenType.L_PAREN)) {
       read();
       E();
 
       if (!isCurrentTokenType(TokenType.R_PAREN))
         throw new ParseException("RN: ')' expected");
+      //RN -> '(' E ')'
     }
-    
-    else if (isCurrentToken(TokenType.RESERVED, "dummy")) { 
+
+    else if (isCurrentToken(TokenType.RESERVED, "dummy")) {
       CreateTerminal(ASTNodeType.DUMMY, "dummy");
+      //RN -> 'dummy'
     }
 
   }
@@ -420,82 +460,90 @@ public class Parser {
   // Definitions
   private void D() {
     DA();
-
+    //D -> DA
     if (isCurrentToken(TokenType.RESERVED, "within")) { 
       read();
       D();
       build_tree(ASTNodeType.WITHIN, 2);
+      //D -> DA 'WITHIN' D
     }
 
   }
 
   private void DA() {
     DR();
-
+    //DA -> DR
     int treesToPop = 0;
     while (isCurrentToken(TokenType.RESERVED, "and")) { 
       read();
-      DR(); 
+      DR();
       treesToPop++;
     }
 
     if (treesToPop > 0)
     build_tree(ASTNodeType.SIMULTDEF, treesToPop + 1);
-  
+    //DA -> DR ( 'and' DR )+
+
   }
 
   private void DR() {
-    if (isCurrentToken(TokenType.RESERVED, "rec")) { 
+    if (isCurrentToken(TokenType.RESERVED, "rec")) {
       read();
-      DB(); 
+      DB();
       build_tree(ASTNodeType.REC, 1);
+      //DR -> 'rec' DB
     }
-    
-    else { 
-      DB(); 
+
+    else {
+      DB();
+      //DR -> DB
     }
 
   }
 
+
   private void DB() {
-    if (isCurrentTokenType(TokenType.L_PAREN)) { 
+    if (isCurrentTokenType(TokenType.L_PAREN)) {
       D();
       read();
 
       if (!isCurrentTokenType(TokenType.R_PAREN))
         throw new ParseException("DB: ')' expected");
+      //DB -> '(' D ')'
       read();
     }
-    
+
     else if (isCurrentTokenType(TokenType.IDENTIFIER)) {
       read();
 
-      if (isCurrentToken(TokenType.OPERATOR, ",")) { 
+      if (isCurrentToken(TokenType.OPERATOR, ",")) {
         read();
-        VL(); 
+        VL();
 
         if (!isCurrentToken(TokenType.OPERATOR, "="))
           throw new ParseException("DB: = expected.");
           build_tree(ASTNodeType.COMMA, 2);
 
         read();
-        E(); 
+        E();
         build_tree(ASTNodeType.EQUAL, 2);
+        //DB -> Vl ’=’ E
       }
-      
-      else { 
 
-        if (isCurrentToken(TokenType.OPERATOR, "=")) { 
+      else {
+
+        if (isCurrentToken(TokenType.OPERATOR, "=")) {
           read();
-          E(); 
+          E();
           build_tree(ASTNodeType.EQUAL, 2);
+
         }
-        
-        else { 
+
+        else {
           int treesToPop = 0;
 
           while (isCurrentTokenType(TokenType.IDENTIFIER) || isCurrentTokenType(TokenType.L_PAREN)) {
-            VB(); 
+            VB();
             treesToPop++;
           }
 
@@ -506,9 +554,10 @@ public class Parser {
             throw new ParseException("DB: = expected.");
 
           read();
-          E(); 
+          E();
 
-          build_tree(ASTNodeType.FCNFORM, treesToPop + 2); 
+          build_tree(ASTNodeType.FCNFORM, treesToPop + 2);
+          //D -> ’<IDENTIFIER>’ VB+ ’=’ E
         }
       }
     }
@@ -517,24 +566,27 @@ public class Parser {
   // Variables
   private void VB() {
 
-    if (isCurrentTokenType(TokenType.IDENTIFIER)) { 
+    if (isCurrentTokenType(TokenType.IDENTIFIER)) {
+      // VB -> ’<IDENTIFIER>’
       read();
+
     }
-    
+
     else if (isCurrentTokenType(TokenType.L_PAREN)) {
       read();
 
-      if (isCurrentTokenType(TokenType.R_PAREN)) { 
+      if (isCurrentTokenType(TokenType.R_PAREN)) {
         CreateTerminal(ASTNodeType.PAREN, "");
+        //VB -> ’(’ ’)’
         read();
       }
-      
-      else { 
+
+      else {
         VL();
 
         if (!isCurrentTokenType(TokenType.R_PAREN))
           throw new ParseException("VB: ')' expected");
-
+        //VB -> ’(’ VL ’)’
         read();
       }
     }
@@ -561,7 +613,8 @@ public class Parser {
       }
 
       if (treesToPop > 0)
-      build_tree(ASTNodeType.COMMA, treesToPop + 1); 
+      build_tree(ASTNodeType.COMMA, treesToPop + 1);
+      //VL -> ’<IDENTIFIER>’ list ’,’
     }
 
   }

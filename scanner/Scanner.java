@@ -8,18 +8,18 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 
-
-// Combination of lexer and screener
+//Lexical Analyzer and Screener
 public class Scanner {
 
   private BufferedReader bufferedReader;
   private String extraCharacterRead;
   private final List<String> reservedKeywords;
 
+  //To initialize the Scanner with the input file
   public Scanner(String inputFile) throws IOException {
     bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(inputFile))));
 
-        // Reserved keywords
+    //Keywords
     reservedKeywords = Arrays.asList("let", "in", "within", "fn", "where", "aug", "or",
                 "not", "gr", "ge", "ls", "le", "eq", "ne", "true",
                 "false", "nil", "dummy", "rec", "and");
@@ -31,7 +31,7 @@ public class Scanner {
     Token nextToken = null;
     String nextCharacter;
 
-    // Check if there is an extra character from the previous token
+    //Check if there is an extra character from the previous token
     if (extraCharacterRead != null) {
       nextCharacter = extraCharacterRead;
       extraCharacterRead = null;
@@ -40,7 +40,7 @@ public class Scanner {
     else
       nextCharacter = readNextCharacter();
 
-      // Build token from the next character
+      //Build token from the next character
 
     if (nextCharacter != null)
       nextToken = buildToken(nextCharacter);
@@ -53,18 +53,20 @@ public class Scanner {
     String nextCharacter = null;
 
     try {
+      //Read the next character from the stream
       int c = bufferedReader.read();
 
+      //Check if end of file is reached
       if (c != -1) {
         nextCharacter = Character.toString((char) c);
       }
 
-      else
+      else  //Close the BufferedReader if end of file is reached
         bufferedReader.close();
     }
 
     catch (IOException e) {
-      // Handle IOException
+      //IOException
     }
     return nextCharacter;
 
@@ -73,27 +75,27 @@ public class Scanner {
   //Build a token based on the current character
   private Token buildToken(String currentCharacter) {
     Token nextToken = null;
-
+    //Check if the character is a letter
     if (Regex.LetterPattern.matcher(currentCharacter).matches()) {
       nextToken = buildIdentifierToken(currentCharacter);
     }
-
+    //Check if the character is a digit
     else if (Regex.DigitPattern.matcher(currentCharacter).matches()) {
       nextToken = buildIntegerToken(currentCharacter);
     }
-
+    //Operating symbol
     else if (Regex.OpSymbolPattern.matcher(currentCharacter).matches()) {
       nextToken = buildOperatorToken(currentCharacter);
     }
-
+    //String delimiter
     else if (currentCharacter.equals("\'")) {
       nextToken = buildStringToken(currentCharacter);
     }
-
+    //Space
     else if (Regex.SpacePattern.matcher(currentCharacter).matches()) {
       nextToken = buildSpaceToken(currentCharacter);
     }
-
+    //Punctuation
     else if (Regex.PunctuationPattern.matcher(currentCharacter).matches()) {
       nextToken = buildPunctuationPattern(currentCharacter);
     }
@@ -101,7 +103,7 @@ public class Scanner {
 
   }
 
-  // Building identifier token
+  //Identifier token
   private Token buildIdentifierToken(String currentCharacter) {
 
     Token identifierToken = new Token();
@@ -116,7 +118,8 @@ public class Scanner {
       }
 
       else {
-      extraCharacterRead = nextCharacter; // Store the extra character for the next token
+      //Store the extra character for the next token
+      extraCharacterRead = nextCharacter;
       break;
       }
 
@@ -124,7 +127,7 @@ public class Scanner {
 
     String value = stringBuilder.toString();
 
-    // Check if the identifier is a reserved keyword
+    //Check if the identifier is a reserved keyword
     if (reservedKeywords.contains(value))
       identifierToken.setType(TokenType.RESERVED);
 
@@ -133,7 +136,7 @@ public class Scanner {
 
   }
 
-  // Building integer token
+  //Integer token
   private Token buildIntegerToken(String currentCharacter) {
 
     Token integerToken = new Token();
@@ -149,7 +152,7 @@ public class Scanner {
       }
 
       else {
-        extraCharacterRead = nextCharacter; // Store the extra character for the next token
+        extraCharacterRead = nextCharacter;
         break;
       }
     }
@@ -158,7 +161,7 @@ public class Scanner {
     return integerToken;
   }
 
-  //Building operator token
+  //Operator token
   private Token buildOperatorToken(String currentCharacter) {
     Token operatorToken = new Token();
     operatorToken.setType(TokenType.OPERATOR);
@@ -176,7 +179,7 @@ public class Scanner {
       }
 
       else {
-        extraCharacterRead = nextCharacter; // Store the extra character for the next token
+        extraCharacterRead = nextCharacter;
         break;
       }
     }
@@ -185,7 +188,7 @@ public class Scanner {
     return operatorToken;
   }
 
-  //Building string token
+  //String token
   private Token buildStringToken(String currentCharacter) {
     Token stringToken = new Token();
     stringToken.setType(TokenType.STRING);
@@ -199,8 +202,8 @@ public class Scanner {
         return stringToken;
       }
 
-      else if (Regex.StringPattern.matcher(nextCharacter).matches()) {
-        stringBuilder.append(nextCharacter);  // If the current character is a valid string character
+      else if (Regex.StringPattern.matcher(nextCharacter).matches()) { //If the current character is a valid string character
+        stringBuilder.append(nextCharacter);
         nextCharacter = readNextCharacter();
       }
     }
@@ -208,7 +211,7 @@ public class Scanner {
     return null;
   }
 
-  // Building space token
+  //Space token
   private Token buildSpaceToken(String currentCharacter) {
 
     Token deleteToken = new Token();
@@ -224,17 +227,18 @@ public class Scanner {
       }
 
       else {
-        // If a non-space character is encountered, store it as the extra character for the next token
+        //If a non-space character is encountered, store it as the extra character for the next token
         extraCharacterRead = nextCharacter;
         break;
       }
     }
 
-    deleteToken.setValue(stringBuilder.toString());  // Set the value of the space token to the constructed space
+    // Set the value of the space token to the constructed space
+    deleteToken.setValue(stringBuilder.toString());
     return deleteToken;
   }
 
-  // Building comment token
+  //Comment token
   private Token buildCommentToken(String currentCharacter) {
     Token commentToken = new Token();
     commentToken.setType(TokenType.DELETE);
@@ -242,13 +246,14 @@ public class Scanner {
     String nextCharacter = readNextCharacter();
 
     while (nextCharacter != null) {
-      // If the current character is part of the comment
+      //If the current character is part of the comment
       if (Regex.CommentPattern.matcher(nextCharacter).matches()) {
         stringBuilder.append(nextCharacter);
         nextCharacter = readNextCharacter();
       }
 
-      else if (nextCharacter.equals("\n"))  // If a newline character is encountered
+      //If a newline character is encountered
+      else if (nextCharacter.equals("\n"))
         break;
     }
 
@@ -256,7 +261,7 @@ public class Scanner {
     return commentToken;
   }
 
-  // Building punctuation token
+  //Punctuation token
   private Token buildPunctuationPattern(String currentCharacter) {
 
     Token punctuationToken = new Token();

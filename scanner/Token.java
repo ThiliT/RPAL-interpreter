@@ -1,9 +1,10 @@
 package scanner;
-// Token passed from the scanner to parser
+
+//Represents a token produced by the scanner
 public class Token {
 
-  private TokenType type;
-  private String value;
+  private TokenType type; //Type of the token
+  private String value; //Value of the token
 
   public TokenType getType() {
     return type;
