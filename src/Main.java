@@ -15,7 +15,7 @@ public class Main {
   public static void main(String[] args) {
     boolean astFlag = false;
     boolean stFlag = false;
-    fileName = "Files\\Documents\\RPAL-interpreter\\src\\Test Programs\\test1.txt";
+    fileName = ;
     Standardize ast = null;
 
     for (String cmdOption : args) {
