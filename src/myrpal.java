@@ -14,7 +14,6 @@ public class myrpal {
 
   public static void main(String[] args) {
     boolean astFlag = false;
-    boolean stFlag = false;
     fileName = "";
     Standardize ast = null;
 
@@ -22,14 +21,12 @@ public class myrpal {
 
       if (cmdOption.equals("-ast"))
         astFlag = true;
-      else if (cmdOption.equals("-st"))
-        stFlag = true;
       else
         fileName = cmdOption;
     }
 
     // only prints the result
-    if (!astFlag && !stFlag) {
+    if (!astFlag) {
       ast = buildAST(fileName, true);
       ast.standardize();
       evaluateST(ast);
@@ -42,18 +39,6 @@ public class myrpal {
         throw new ParseException("Input a relavant file.");
       ast = buildAST(fileName, true);
       printAST(ast);
-      ast.standardize();
-      evaluateST(ast);
-    }
-
-    // prints st and result
-    if (stFlag) {
-      if (fileName.isEmpty())
-        throw new ParseException("Input a relavant file.");
-      ast = buildAST(fileName, true);
-      ast.standardize();
-      printAST(ast);
-      evaluateST(ast);
     }
 
   }
