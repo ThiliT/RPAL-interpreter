@@ -18,13 +18,13 @@ JAVA_FILES := $(wildcard $(SRC_DIR)/**/*.java) \
               $(wildcard $(STANDARDIZE_DIR)/*.java) \
               $(wildcard $(PARSER_DIR)/*.java) \
               $(wildcard $(SCANNER_DIR)/*.java) \
-              $(wildcard $(SRC_DIR)/Main.java)
+              $(wildcard $(SRC_DIR)/myrpal.java)
 
 # Classpath
 CLASSPATH = $(SRC_DIR)
 
 # Main class
-MAIN_CLASS = Main
+MAIN_CLASS = myrpal
 
 # Targets
 .PHONY: all clean
