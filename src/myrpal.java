@@ -8,14 +8,14 @@ import parser.Parser;
 import scanner.Scanner;
 
 // Main class
-public class Main {
+public class myrpal {
 
   public static String fileName;
 
   public static void main(String[] args) {
     boolean astFlag = false;
     boolean stFlag = false;
-    fileName = ;
+    fileName = "";
     Standardize ast = null;
 
     for (String cmdOption : args) {
