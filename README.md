@@ -49,13 +49,14 @@ To compile the project, you can use the provided Makefile. Ensure you are in the
 
 After compiling, you can run the interpreter with the following command:
         java myrpal file_name
+Ensure you are in the project's src directory
 
 ## Command Line Options
 
 -ast: This switch prints the abstract syntax tree (AST) of the given RPAL program.
+    command: java myrpal file_name
 
-command: java myrpal file_name
-
+Ensure you are in the project's src directory
 
 ## Cleaning Up
 
